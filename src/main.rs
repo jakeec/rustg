@@ -37,6 +37,7 @@ fn main() {
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     let mut closed = false;
+    let mut holding_cmd = true;
     let mut t: f32 = -0.5;
     while !closed {
         t += 0.0002;
@@ -64,6 +65,33 @@ fn main() {
         events_loop.poll_events(|ev| match ev {
             glutin::Event::WindowEvent { event, .. } => match event {
                 glutin::WindowEvent::CloseRequested => closed = true,
+                glutin::WindowEvent::KeyboardInput { input, .. } => match input {
+                    glutin::KeyboardInput {
+                        virtual_keycode,
+                        state,
+                        ..
+                    } => match (virtual_keycode, state) {
+                        (Some(glutin::VirtualKeyCode::Escape), glutin::ElementState::Pressed) => {
+                            closed = true
+                        }
+                        (Some(glutin::VirtualKeyCode::LWin), glutin::ElementState::Pressed) => {
+                            println!("Holding cmd {}", holding_cmd);
+                            holding_cmd = true;
+                        }
+                        (Some(glutin::VirtualKeyCode::LWin), glutin::ElementState::Released) => {
+                            println!("Released cmd {}", holding_cmd);
+                            holding_cmd = false;
+                        }
+                        (Some(glutin::VirtualKeyCode::W), glutin::ElementState::Pressed) => {
+                            println!("Pressed W");
+                            if holding_cmd {
+                                closed = true;
+                            }
+                        }
+                        _ => (),
+                    },
+                    _ => (),
+                },
                 _ => (),
             },
             _ => (),
